@@ -39,8 +39,27 @@ $editorOk = Check 'editor' {
 $androidOk = Check 'android_toolchain' {
     & (Join-Path $PSScriptRoot 'Check-AndroidToolchain.ps1') -AndroidPlayer (Join-Path (Split-Path $Editor) 'Data/PlaybackEngines/AndroidPlayer')
 }
+$toolsOk = Check 'tooling_tests' {
+    python -m unittest discover -s $PSScriptRoot -p 'test_*.py'
+    if ($LASTEXITCODE -ne 0) { throw 'Development tooling tests failed.' }
+}
+$codeOk = $true
+if (Get-Command dotnet -ErrorAction SilentlyContinue) {
+    $codeOk = Check 'domain_checks' {
+        dotnet run --project (Join-Path $PSScriptRoot 'DomainCheck/DomainCheck.csproj')
+        if ($LASTEXITCODE -ne 0) { throw 'Pure C# domain checks failed.' }
+    }
+    $syntaxOk = Check 'csharp_syntax' {
+        dotnet run --project (Join-Path $PSScriptRoot 'SyntaxCheck/SyntaxCheck.csproj') -- $project
+        if ($LASTEXITCODE -ne 0) { throw 'C# syntax checks failed.' }
+    }
+    $codeOk = $codeOk -and $syntaxOk
+} else {
+    Skip 'domain_checks' '.NET SDK unavailable; real Unity tests are still required.'
+    Skip 'csharp_syntax' '.NET SDK unavailable.'
+}
 $testsOk = $false
-if (($RunUnity -or $BuildAndroid) -and $auditOk -and $editorOk) {
+if (($RunUnity -or $BuildAndroid) -and $auditOk -and $editorOk -and $lfsOk -and $toolsOk -and $codeOk) {
     $testsOk = Check 'unity_tests' { & (Join-Path $PSScriptRoot 'Test-Unity.ps1') -Editor $Editor }
 } else { Skip 'unity_tests' 'Requires -RunUnity (or -BuildAndroid) and passing prerequisites.' }
 if ($BuildAndroid -and $testsOk -and $androidOk) {

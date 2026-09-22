@@ -99,6 +99,7 @@ not supersede the current licensing failure.
 ## Latest local evidence
 
 - Python tooling tests: 7 passed (including real local Git LFS materialization).
+- A real local-only game was generated from commit `69d3856` into ignored `artifacts/ReadinessSmoke`; its static audit passed (149 GUIDs, 51 C# files). No remote was created.
 - Pure C# domain checks: 20 passed (CLI JSON adapter; not Unity Test Runner).
 - C# syntax and supplementary imported-assembly type check: 51 files, zero errors.
 - PowerShell parse checks passed.
