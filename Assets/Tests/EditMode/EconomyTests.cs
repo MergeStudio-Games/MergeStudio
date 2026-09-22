@@ -38,5 +38,22 @@ namespace MergeStudio.Tests
             new AdMediationService().ShowRewarded(() => rewarded = true, () => failed = true);
             Assert.IsFalse(rewarded); Assert.IsTrue(failed);
         }
+        [Test] public void ShopChargesOnceAndAddsConfiguredEnergy()
+        {
+            var config = ScriptableObject.CreateInstance<EconomyConfigSO>();
+            try
+            {
+                var wallet = new Currency(config.EnergyPackPrice);
+                var energy = new EnergySystem(0, 0, config.MaxEnergy, config.EnergySeconds);
+                var shop = new ShopSystem();
+                Assert.IsTrue(shop.BuyEnergy(wallet, energy, config));
+                Assert.AreEqual(0, wallet.Balance); Assert.AreEqual(config.EnergyPackAmount, energy.Current);
+                Assert.IsFalse(shop.BuyEnergy(wallet, energy, config));
+                config.EnergyPackAmount = -1;
+                Assert.Throws<System.ArgumentOutOfRangeException>(() => shop.BuyEnergy(wallet, energy, config));
+                Assert.AreEqual(0, wallet.Balance);
+            }
+            finally { Object.DestroyImmediate(config); }
+        }
     }
 }

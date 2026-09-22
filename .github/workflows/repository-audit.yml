@@ -32,6 +32,9 @@ jobs:
       - name: Run repository audit
         run: python3 Tools/validate_repo.py
 
+      - name: Test development tools
+        run: python3 -m unittest discover -s Tools -p 'test_*.py'
+
       - name: Check for forbidden generated or secret files
         shell: bash
         run: |

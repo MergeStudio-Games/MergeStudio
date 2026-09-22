@@ -1,28 +1,28 @@
-param(
-    [Parameter(Mandatory=$true)][string]$Repository,
+﻿param(
+    [Parameter(Mandatory=$true)][ValidatePattern('^[A-Za-z][A-Za-z0-9-]{1,63}$')][string]$Repository,
+    [Parameter(Mandatory=$true)][string]$ApplicationId,
+    [string]$Product = $Repository,
+    [string]$Company = 'MergeStudio Games',
     [string]$Directory = (Join-Path (Get-Location) $Repository),
-    [ValidateSet('public','private')][string]$Visibility = 'private'
+    [string]$Revision = 'develop',
+    [ValidateSet('public','private')][string]$Visibility = 'private',
+    [switch]$LocalOnly
 )
 $ErrorActionPreference = 'Stop'
-if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { throw 'GitHub CLI (gh) is required.' }
-if ($Repository -notmatch '^[A-Za-z][A-Za-z0-9-]{1,63}$') { throw 'Repository must be a short slug using letters, numbers, and hyphens.' }
-if (Test-Path $Directory) { throw "Destination directory already exists: $Directory" }
+if (-not $LocalOnly -and -not (Get-Command gh -ErrorAction SilentlyContinue)) { throw 'GitHub CLI is required.' }
+python (Join-Path $PSScriptRoot 'create_game.py') --destination $Directory --product $Product --company $Company --identifier $ApplicationId --revision $Revision
+if ($LASTEXITCODE -ne 0) { throw 'Local game generation failed; no remote repository was created.' }
+if ($LocalOnly) { Write-Host "Local game ready at $Directory; review and commit before publishing."; return }
+git -C $Directory add --all
+if ($LASTEXITCODE -ne 0) { throw 'Could not stage generated project.' }
+git -C $Directory commit -m "Initialize $Product from MergeStudio template"
+if ($LASTEXITCODE -ne 0) { throw 'Could not commit; configure your Git identity. Local project preserved.' }
 $full = "MergeStudio-Games/$Repository"
-gh repo create $full --$Visibility --template MergeStudio-Games/MergeStudio --description "New MergeStudio Games project: $Repository"
-if ($LASTEXITCODE -ne 0) { throw "Could not create $full from the MergeStudio template." }
-
-# GitHub templates can initialize a disconnected, empty default branch when
-# the template's integration branch is not its default branch. Clone the
-# reviewed integration branch directly, then seed both branches in the new
-# repository from that exact history.
-git clone --branch develop "https://github.com/MergeStudio-Games/MergeStudio.git" $Directory
-if ($LASTEXITCODE -ne 0) { throw 'Could not clone the MergeStudio develop branch.' }
-git -C $Directory remote set-url origin "https://github.com/$full.git"
-git -C $Directory push --force -u origin develop
-if ($LASTEXITCODE -ne 0) { throw "Could not seed $full/develop." }
-git -C $Directory branch -f main develop
-git -C $Directory push --force -u origin main
-if ($LASTEXITCODE -ne 0) { throw "Could not seed $full/main." }
-
-Write-Host "Created $full at $Directory from MergeStudio develop."
-Write-Host 'Next: update product identifiers, read AGENTS.md, and run Tools/Bootstrap-Developer.ps1.'
+# The archive is the template. Start a new history; never overwrite remote refs.
+gh repo create $full --$Visibility --source $Directory --remote origin --push --description "MergeStudio Games: $Product"
+if ($LASTEXITCODE -ne 0) { throw "Could not publish $full. Local project preserved at $Directory." }
+git -C $Directory branch main
+if ($LASTEXITCODE -ne 0) { throw 'Could not create main.' }
+git -C $Directory push origin main
+if ($LASTEXITCODE -ne 0) { throw 'Could not publish main.' }
+Write-Host "Created $full. Configure branch protection and per-game CI credentials before team use."
