@@ -70,7 +70,7 @@ jobs:
             echo 'UNITY_LICENSE, UNITY_EMAIL, and UNITY_PASSWORD repository secrets are required for GameCI.'
             exit 1
           }
-      - uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@v6
         with:
           cliVersion: v0.1.65
           unityVersion: auto
