@@ -40,7 +40,7 @@ jobs:
           unityVersion: auto
           testMode: all
           artifactsPath: TestResults
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: tests-${{ github.job }}
@@ -99,7 +99,7 @@ jobs:
                       raise SystemExit(f'Corrupt entry in {bundle}: {corrupt}')
               print(f'Verified {bundle} ({bundle.stat().st_size} bytes)')
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Android-build
           path: build/**/*.aab
