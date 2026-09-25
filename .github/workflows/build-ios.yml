@@ -3,7 +3,7 @@ on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [develop]
+    branches: [main, develop]
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,6 +12,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   tests:
+    name: iOS Unity tests
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -40,13 +42,17 @@ jobs:
           unityVersion: auto
           testMode: all
           artifactsPath: TestResults
+      - name: Verify both Unity suites
+        run: python3 Tools/verify_unity_results.py TestResults
       - uses: actions/upload-artifact@v7
         if: always()
         with:
+          retention-days: 14
           name: tests-${{ github.job }}
           path: TestResults
           if-no-files-found: warn
   build:
+    timeout-minutes: 90
     needs: tests
     runs-on: macos-latest
     env:

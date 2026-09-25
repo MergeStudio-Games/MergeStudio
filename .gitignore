@@ -12,6 +12,8 @@ Recordings/
 .vscode/
 .idea/
 *.csproj
+!Tools/DomainCheck/DomainCheck.csproj
+!Tools/SyntaxCheck/SyntaxCheck.csproj
 *.sln
 *.suo
 *.user

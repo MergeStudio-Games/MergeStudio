@@ -17,7 +17,7 @@ namespace MergeStudio.Editor
     [InitializeOnLoad]
     public static class ProjectSetup
     {
-        private const string SetupVersion = "2";
+        private const string SetupVersion = "3";
         static ProjectSetup() { EditorApplication.delayCall += Ensure; }
         [MenuItem("MergeStudio/Ensure Project Setup")]
         public static void Ensure()
@@ -36,11 +36,9 @@ namespace MergeStudio.Editor
         {
             EditorSettings.serializationMode = SerializationMode.ForceText;
             UnityEditor.VersionControlSettings.mode = "Visible Meta Files";
-            PlayerSettings.companyName = "MergeStudio"; PlayerSettings.productName = "MergeStudio";
+            // Product identity belongs to each generated game; repair must preserve it.
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.defaultScreenWidth = 1080; PlayerSettings.defaultScreenHeight = 2400;
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.mergestudio.merge");
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.mergestudio.merge");
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
@@ -85,9 +83,9 @@ namespace MergeStudio.Editor
                 LocalizationEditorSettings.AddLocale(locale);
             }
             var collection = LocalizationEditorSettings.GetStringTableCollection("UI") ?? LocalizationEditorSettings.CreateStringTableCollection("UI", "Assets/Localization/Tables");
-            string[] keys = { "continue", "settings", "shop", "play", "energy", "orders", "close", "spawn" };
-            string[] tr = { "Devam Et", "Ayarlar", "Ma\u011faza", "Oyna", "Enerji", "Sipari\u015fler", "Kapat", "E\u015fya \u00dcret" };
-            string[] en = { "Continue", "Settings", "Shop", "Play", "Energy", "Orders", "Close", "Spawn Item" };
+            string[] keys = { "continue", "settings", "shop", "play", "energy", "orders", "close", "spawn", "gold", "merge_instruction", "first_order_complete", "energy_offer", "sound_off", "sound_on" };
+            string[] tr = { "Devam Et", "Ayarlar", "Ma\u011faza", "Oyna", "Enerji", "Sipari\u015fler", "Kapat", "E\u015fya \u00dcret", "Alt\u0131n", "E\u015fya \u00fcret. Ayn\u0131 seviyeye dokun veya s\u00fcr\u00fckleyerek birle\u015ftir. Sipari\u015fini tamamla!", "\u0130lk sipari\u015f tamamland\u0131! \u0130lerlemen kaydedildi.", "+{0} enerji / {1} elmas (bakiye: {2})", "Ses: kapal\u0131", "Ses: a\u00e7\u0131k" };
+            string[] en = { "Continue", "Settings", "Shop", "Play", "Energy", "Orders", "Close", "Spawn Item", "Gold", "Generate pieces. Tap two matching levels or drag to combine. Complete your order!", "First order complete! Your progress is saved.", "+{0} energy / {1} diamonds (balance: {2})", "Sound: off", "Sound: on" };
             foreach (string code in new[] { "tr", "en" })
             {
                 var table = collection.GetTable(new LocaleIdentifier(code)) as StringTable;

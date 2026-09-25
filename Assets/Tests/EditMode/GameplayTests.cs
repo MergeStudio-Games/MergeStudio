@@ -6,6 +6,19 @@ namespace MergeStudio.Tests
 {
     public sealed class GameplayTests
     {
+        [Test] public void MoveToEmptyCellPreservesItemAndClearsSource()
+        {
+            var board = new MergeBoard(2, 2); board.Place(0, new Item("bread", 3));
+            Assert.IsTrue(board.MoveOrMerge(0, 3)); Assert.IsNull(board[0]);
+            Assert.AreEqual("bread", board[3].Id); Assert.AreEqual(3, board[3].Tier);
+        }
+        [Test] public void InvalidMoveAndTierCapPreserveBoard()
+        {
+            var board = new MergeBoard(2, 2); board.Place(0, new Item("bread", 10)); board.Place(1, new Item("bread", 10));
+            Assert.IsFalse(board.MoveOrMerge(-1, 2)); Assert.IsFalse(board.MoveOrMerge(0, 4));
+            Assert.IsFalse(board.MoveOrMerge(2, 3)); Assert.IsFalse(board.MoveOrMerge(0, 1));
+            Assert.AreEqual(10, board[0].Tier); Assert.AreEqual(10, board[1].Tier);
+        }
         [Test] public void MergeConsumesSourceAndUpgradesTarget()
         {
             var board = new MergeBoard(2, 2); board.Place(0, new Item("bread", 1)); board.Place(1, new Item("bread", 1));
