@@ -33,6 +33,11 @@ hierarchy. No commercial APK code, artwork, sound or branding is included.
 - F-Droid Triple Match (`com.sidhant.triplematch`, GPL-3.0): offline behavior and
   seven-slot triple-match loop. The signed ARM64 APK is kept in ignored research
   storage and its GPL code is not incorporated.
+- F-Droid Tile Match (`infrared.tilematch`, GPL-3.0-or-later): layered tile locking,
+  lower collection bar and loss-state readability. Its signed APK is research-only.
+- F-Droid Fairy Mahjong (`com.fairytrick.fairymahjong`, Apache-2.0): save recovery,
+  hint presentation, haptics and responsive portrait/landscape behavior. Its signed
+  APK is research-only; no art or product identity is reused.
 - `unitycoder/MatchSweets` at commit
   `92c1961f63cddc2e8cbd73ddeea18673f1b0d61e` (MIT): reviewed for general Unity
   presentation patterns only.
