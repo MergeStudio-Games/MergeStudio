@@ -1,5 +1,10 @@
 # MergeStudio Games studio readiness report
 
+> **2026-09-22 update:** The tables below are the historical 2026-09-18 snapshot.
+> Current Unity runs fail with licensing exit 198, so the old passing counts are
+> not current validation. Follow [WORKSPACE-ROADMAP.md](WORKSPACE-ROADMAP.md) for
+> implementation progress, evidence and unresolved account/device dependencies.
+
 **Snapshot / Anlık durum:** 2026-09-18 · `develop` · Unity `6000.6.0f1` · Android target API 36  
 **Scope / Kapsam:** MergeStudio template and its first mobile 2D merge-game foundation
 
