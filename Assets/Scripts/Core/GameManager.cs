@@ -35,7 +35,7 @@ namespace MergeStudio.Core
             }
 
             _data.PlayerLevel = Mathf.Clamp(_data.PlayerLevel, 1, 100);
-            _itemIds = Resources.LoadAll<Sprite>("MixoKitchen/Food")
+            _itemIds = Resources.LoadAll<Sprite>("MixoKitchen/PremiumFood")
                 .Select(sprite => sprite.name)
                 .Distinct()
                 .OrderBy(value => value, StringComparer.Ordinal)
