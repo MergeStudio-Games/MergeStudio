@@ -5,11 +5,12 @@ import json
 from pathlib import Path
 import subprocess
 from verify_aab import verify
+from verify_apk import verify as verify_apk
 
 
 def manifest(bundle, output):
     root = Path(__file__).resolve().parents[1]
-    digest = verify(bundle)
+    digest = verify_apk(bundle) if bundle.suffix.lower() == '.apk' else verify(bundle)
     commit = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
     dirty = bool(subprocess.check_output(['git', '-C', str(root), 'status', '--porcelain'], text=True).strip())
     data = {'utc': datetime.now(timezone.utc).isoformat(), 'commit': commit,

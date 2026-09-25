@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 namespace MergeStudio.UI
 {
     // Widget callbacks stay inside the owning view; it publishes gameplay channels.
+    [RequireComponent(typeof(CanvasGroup))]
     public sealed class BoardCellInput : MonoBehaviour, IBeginDragHandler, IDragHandler, IDropHandler, IEndDragHandler
     {
         public int Index { get; set; }
@@ -13,7 +14,7 @@ namespace MergeStudio.UI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            _group = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+            _group = GetComponent<CanvasGroup>();
             _group.alpha = 0.55f;
         }
 

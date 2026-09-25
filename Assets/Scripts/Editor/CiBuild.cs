@@ -18,9 +18,19 @@ namespace MergeStudio.Editor
     {
         public static void BuildAndroid()
         {
+            BuildAndroidPlayer(true);
+        }
+
+        public static void BuildAndroidApk()
+        {
+            BuildAndroidPlayer(false);
+        }
+
+        private static void BuildAndroidPlayer(bool appBundle)
+        {
             ProjectSetup.Configure();
             EditorUserBuildSettings.SwitchActiveBuildTarget(NamedBuildTarget.Android, BuildTarget.Android);
-            EditorUserBuildSettings.buildAppBundle = true;
+            EditorUserBuildSettings.buildAppBundle = appBundle;
             ConfigureAndroidToolchain();
 
             if (IsEnabled(Environment.GetEnvironmentVariable("MERGESTUDIO_DISABLE_BURST")))
@@ -30,7 +40,8 @@ namespace MergeStudio.Editor
             }
 
             string path = Environment.GetEnvironmentVariable("MERGESTUDIO_BUILD_PATH");
-            if (string.IsNullOrWhiteSpace(path)) path = Path.Combine("build", "MergeStudio.aab");
+            if (string.IsNullOrWhiteSpace(path))
+                path = Path.Combine("Build", appBundle ? "MixoKitchen.aab" : "MixoKitchen.apk");
             path = Path.GetFullPath(path);
             string directory = Path.GetDirectoryName(path);
             if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
@@ -51,7 +62,7 @@ namespace MergeStudio.Editor
             BuildReport report = BuildPipeline.BuildPlayer(options);
             if (report.summary.result != BuildResult.Succeeded)
                 throw new BuildFailedException($"Android build failed: {report.summary.result}");
-            Debug.Log($"Android App Bundle created: {path} ({report.summary.totalSize} bytes)");
+            Debug.Log($"Android {(appBundle ? "App Bundle" : "APK")} created: {path} ({report.summary.totalSize} bytes)");
         }
 
         private static bool IsEnabled(string value) =>

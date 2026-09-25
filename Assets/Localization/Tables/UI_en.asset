@@ -50,6 +50,30 @@ MonoBehaviour:
     m_Localized: Spawn Item
     m_Metadata:
       m_Items: []
+  - m_Id: 2393193149861888
+    m_Localized: Gold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634048
+    m_Localized: Generate pieces. Tap two matching levels or drag to combine. Complete your order!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634049
+    m_Localized: First order complete! Your progress is saved.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634050
+    m_Localized: '+{0} energy / {1} diamonds (balance: {2})'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634051
+    m_Localized: 'Sound: off'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634052
+    m_Localized: 'Sound: on'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
