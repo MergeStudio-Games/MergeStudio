@@ -35,6 +35,7 @@ Assets/AddressablesData/link.xml
 Assets/AddressablesData/link.xml.meta
 Assets/Resources/*
 !Assets/Resources.meta
+!Assets/Resources/MixoKitchen.meta
 !Assets/Resources/MixoKitchen/
 !Assets/Resources/MixoKitchen/**
 Assets/StreamingAssets/aa/
