@@ -16,6 +16,7 @@ namespace MergeStudio.UI
         {
             string[] arguments = Environment.GetCommandLineArgs();
             if (Array.IndexOf(arguments, EnableArgument) < 0 || FindAnyObjectByType<VisualQaCapture>() != null) return;
+            Application.runInBackground = true;
             var runner = new GameObject("Visual QA Capture", typeof(VisualQaCapture));
             DontDestroyOnLoad(runner);
         }

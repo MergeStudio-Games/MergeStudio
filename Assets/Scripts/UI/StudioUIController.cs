@@ -355,7 +355,9 @@ namespace MergeStudio.UI
             if (matched)
             {
                 if (_soundEnabled) _audio.PlayOneShot(_matchSound);
+#if UNITY_ANDROID || UNITY_IOS
                 if (_hapticsEnabled && Application.isMobilePlatform) Handheld.Vibrate();
+#endif
                 StartCoroutine(Burst());
             }
         }
