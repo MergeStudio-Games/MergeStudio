@@ -84,6 +84,13 @@ namespace MergeStudio.Core
 
         private void HandleCommand(int command)
         {
+            if (command == -102 || command == -103)
+            {
+                _game.SetPaused(command == -102);
+                Publish();
+                return;
+            }
+            if (_game.Paused) return;
             bool changed;
             if (command == RestartCommand)
             {
@@ -93,7 +100,7 @@ namespace MergeStudio.Core
             else if (command == ContinueCommand && _game.State == TripleMatchState.Won)
             {
                 _data.PlayerLevel = Mathf.Min(100, _data.PlayerLevel + 1);
-                _data.Gold = Math.Min(int.MaxValue, _data.Gold + 50 + _game.Level.Number * 5);
+                _data.Gold = (int)Math.Min(int.MaxValue, (long)_data.Gold + 50 + _game.Level.Number * 5);
                 StartLevel(_data.PlayerLevel);
                 changed = true;
             }
@@ -141,7 +148,10 @@ namespace MergeStudio.Core
 
         private void OnApplicationPause(bool paused)
         {
-            if (paused) Persist();
+            if (!paused || !_ready) return;
+            _game.SetPaused(true);
+            Publish();
+            Persist();
         }
 
         private void OnApplicationQuit() => Persist();

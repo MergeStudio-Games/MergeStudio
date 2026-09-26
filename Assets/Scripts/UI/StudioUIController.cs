@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using MergeStudio.Events;
 using MergeStudio.Gameplay;
@@ -58,11 +59,16 @@ namespace MergeStudio.UI
         private TripleMatchSnapshot _snapshot;
         private int _previousCleared;
         private bool _inputLocked;
+        private GameObject _pauseOverlay;
+        private bool _soundEnabled;
+        private bool _hapticsEnabled;
         private float _time;
 
         private void Awake()
         {
             _font = Resources.Load<Font>("MixoKitchen/Fonts/Nunito-Variable") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _soundEnabled = PlayerPrefs.GetInt("mixo.sound", 1) != 0;
+            _hapticsEnabled = PlayerPrefs.GetInt("mixo.haptics", 1) != 0;
             _rounded = CreateRoundedSprite();
             _circle = CreateCircleSprite();
             _background = Resources.Load<Sprite>("MixoKitchen/UI/kitchen-background-v2");
@@ -90,6 +96,8 @@ namespace MergeStudio.UI
 
         private void Update()
         {
+            if (!_menu && !_inputLocked && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+                SetPause(_pauseOverlay == null || !_pauseOverlay.activeSelf);
             _time += Time.unscaledDeltaTime;
             for (int i = 0; i < _floaters.Count; i++)
             {
@@ -245,7 +253,51 @@ namespace MergeStudio.UI
             AddToolButton("✦", "İPUCU", new Color32(186, 132, 54, 255), tools, () => _shopRequest.RaiseEvent(), out _hintCount);
             AddToolButton("↻", "KARIŞTIR", new Color32(35, 116, 121, 255), tools, () => _spawnRequest.RaiseEvent(), out _shuffleCount);
 
+            Button pause = Button("II", _safeRoot, DeepTeal, () => SetPause(true), out Text pauseLabel);
+            pause.gameObject.name = "Pause Button";
+            SetRect(pause.GetComponent<RectTransform>(), 0.82f, 0.85f, 0.95f, 0.888f);
             BuildResultOverlay();
+            BuildPauseOverlay();
+        }
+
+        private void SetPause(bool paused)
+        {
+            if (_inputLocked || _snapshot == null || _snapshot.State != TripleMatchState.Playing.ToString()) return;
+            _cellRequest.RaiseEvent(paused ? -102 : -103);
+        }
+
+        private void BuildPauseOverlay()
+        {
+            RectTransform overlay = Panel("Pause Overlay", _safeRoot, new Color(0.01f, 0.04f, 0.05f, 0.86f), null);
+            Stretch(overlay);
+            _pauseOverlay = overlay.gameObject;
+            RectTransform card = Panel("Pause Card", overlay, Cream, _rounded);
+            SetRect(card, 0.08f, 0.24f, 0.92f, 0.76f);
+            Text title = Label("MUTFAK MOLASI", card, 44, FontStyle.Bold, DeepTeal);
+            SetRect(title.rectTransform, 0.05f, 0.79f, 0.95f, 0.95f);
+            Text soundLabel = null;
+            Button sound = Button(_soundEnabled ? "SES: A\u00c7IK" : "SES: KAPALI", card, DeepTeal, () =>
+            {
+                _soundEnabled = !_soundEnabled;
+                PlayerPrefs.SetInt("mixo.sound", _soundEnabled ? 1 : 0);
+                PlayerPrefs.Save();
+                soundLabel.text = _soundEnabled ? "SES: A\u00c7IK" : "SES: KAPALI";
+            }, out soundLabel);
+            SetRect(sound.GetComponent<RectTransform>(), 0.08f, 0.59f, 0.92f, 0.73f);
+            Text hapticLabel = null;
+            Button haptics = Button(_hapticsEnabled ? "T\u0130TRE\u015e\u0130M: A\u00c7IK" : "T\u0130TRE\u015e\u0130M: KAPALI", card, DeepTeal, () =>
+            {
+                _hapticsEnabled = !_hapticsEnabled;
+                PlayerPrefs.SetInt("mixo.haptics", _hapticsEnabled ? 1 : 0);
+                PlayerPrefs.Save();
+                hapticLabel.text = _hapticsEnabled ? "T\u0130TRE\u015e\u0130M: A\u00c7IK" : "T\u0130TRE\u015e\u0130M: KAPALI";
+            }, out hapticLabel);
+            SetRect(haptics.GetComponent<RectTransform>(), 0.08f, 0.41f, 0.92f, 0.55f);
+            Button resume = Button("DEVAM ET", card, Mint, () => SetPause(false), out Text resumeLabel);
+            SetRect(resume.GetComponent<RectTransform>(), 0.08f, 0.22f, 0.92f, 0.36f);
+            Text note = Label("Mola s\u0131ras\u0131nda s\u00fcre durur.", card, 25, FontStyle.Normal, DeepTeal);
+            SetRect(note.rectTransform, 0.08f, 0.05f, 0.92f, 0.17f);
+            _pauseOverlay.SetActive(false);
         }
 
         private void AddToolButton(string icon, string title, Color color, Transform parent, UnityEngine.Events.UnityAction action, out Text count)
@@ -287,17 +339,23 @@ namespace MergeStudio.UI
         {
             TripleMatchSnapshot next = JsonUtility.FromJson<TripleMatchSnapshot>(json);
             if (next == null) return;
-            bool matched = _snapshot != null && next.ClearedTiles - _previousCleared >= 3 && next.Tray.Count < _snapshot.Tray.Count;
+            bool matched = _snapshot != null && next.Level == _snapshot.Level && next.ClearedTiles - _previousCleared >= 3;
+            if (_snapshot != null && (next.Level != _snapshot.Level || next.ClearedTiles < _snapshot.ClearedTiles && next.Tray.Count == 0))
+            {
+                foreach (Button oldTile in _tileButtons.Values) Destroy(oldTile.gameObject);
+                _tileButtons.Clear();
+            }
             _snapshot = next;
             _previousCleared = next.ClearedTiles;
+            if (_pauseOverlay != null) _pauseOverlay.SetActive(next.Paused);
             RenderHeader();
             RenderTiles();
             RenderTray();
             RenderResult();
             if (matched)
             {
-                _audio.PlayOneShot(_matchSound);
-                Handheld.Vibrate();
+                if (_soundEnabled) _audio.PlayOneShot(_matchSound);
+                if (_hapticsEnabled && Application.isMobilePlatform) Handheld.Vibrate();
                 StartCoroutine(Burst());
             }
         }
@@ -326,7 +384,7 @@ namespace MergeStudio.UI
                 _tileButtons.Remove(pair.Key);
             }
 
-            int activeCount = active.Count;
+            int activeCount = _snapshot.TotalTiles;
             float size = Mathf.Lerp(148, 92, Mathf.InverseLerp(24, 180, activeCount));
             foreach (TripleTileSnapshot tile in _snapshot.Tiles.Where(value => value.Active).OrderBy(value => value.Layer).ThenBy(value => value.Index))
             {
@@ -345,6 +403,8 @@ namespace MergeStudio.UI
                     if (_sprites.TryGetValue(tile.ItemId, out Sprite sprite)) food.sprite = sprite;
                     _tileButtons[index] = button;
                 }
+                if (_sprites.TryGetValue(tile.ItemId, out Sprite currentSprite))
+                    button.transform.Find("Food").GetComponent<Image>().sprite = currentSprite;
                 RectTransform rect = button.GetComponent<RectTransform>();
                 rect.anchorMin = rect.anchorMax = new Vector2(0.08f + tile.X * 0.84f, 0.10f + tile.Y * 0.82f);
                 rect.pivot = new Vector2(0.5f, 0.5f);
@@ -374,7 +434,7 @@ namespace MergeStudio.UI
             _resultOverlay.SetActive(finished);
             if (!finished) return;
             bool won = _snapshot.State == TripleMatchState.Won.ToString();
-            _resultTitle.text = won ? "HARİKA!" : "HAZNE DOLDU";
+            _resultTitle.text = won ? "HARİKA!" : _snapshot.SecondsRemaining == 0 ? "S\u00dcRE DOLDU" : "HAZNE DOLDU";
             _resultTitle.color = won ? Mint : Coral;
             _resultSubtitle.text = won
                 ? "Bölüm " + _snapshot.Level + " tamamlandı\n+Skor: " + _snapshot.Score
@@ -389,7 +449,7 @@ namespace MergeStudio.UI
 
         private void TapTile(int index)
         {
-            if (_inputLocked || _snapshot == null || _snapshot.State != TripleMatchState.Playing.ToString()) return;
+            if (_inputLocked || (_snapshot != null && _snapshot.Paused) || _snapshot == null || _snapshot.State != TripleMatchState.Playing.ToString()) return;
             if (!_tileButtons.TryGetValue(index, out Button button)) return;
             StartCoroutine(AnimateTap(button.transform, index));
         }
@@ -397,9 +457,11 @@ namespace MergeStudio.UI
         private IEnumerator AnimateTap(Transform tile, int index)
         {
             _inputLocked = true;
-            _audio.PlayOneShot(_tapSound);
+            if (_soundEnabled) _audio.PlayOneShot(_tapSound);
             RectTransform sourceRect = (RectTransform)tile;
-            int slotIndex = Mathf.Clamp(_snapshot.Tray.Count, 0, _trayImages.Count - 1);
+            string itemId = _snapshot.Tiles.First(value => value.Index == index).ItemId;
+            int lastMatching = _snapshot.Tray.FindLastIndex(value => value == itemId);
+            int slotIndex = Mathf.Clamp(lastMatching < 0 ? _snapshot.Tray.Count : lastMatching + 1, 0, _trayImages.Count - 1);
             RectTransform targetRect = _trayImages[slotIndex].rectTransform;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _effectsLayer, RectTransformUtility.WorldToScreenPoint(null, sourceRect.position), null, out Vector2 start);
@@ -429,6 +491,7 @@ namespace MergeStudio.UI
                 yield return null;
             }
             Destroy(flyer.gameObject);
+            if (tile != null) tile.localScale = Vector3.one;
             _cellRequest.RaiseEvent(index);
             _inputLocked = false;
         }
@@ -481,7 +544,7 @@ namespace MergeStudio.UI
                 colorMultiplier = 1,
                 fadeDuration = 0.08f
             };
-            button.onClick.AddListener(action);
+            button.onClick.AddListener(() => { if (!_inputLocked) action(); });
             label = Label(text, go.transform, 34, FontStyle.Bold, Color.white);
             Stretch(label.rectTransform, 8);
             label.raycastTarget = false;

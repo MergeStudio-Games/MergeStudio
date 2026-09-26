@@ -28,6 +28,11 @@ namespace MergeStudio.UI
                 while (SceneManager.GetActiveScene().name != "Game") yield return null;
             }
             for (int i = 0; i < 20; i++) yield return null;
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-mixo-pause") >= 0)
+            {
+                GameObject.Find("Pause Button").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+                yield return null;
+            }
             yield return new WaitForEndOfFrame();
 
             string output = ReadArgument(OutputArgument);

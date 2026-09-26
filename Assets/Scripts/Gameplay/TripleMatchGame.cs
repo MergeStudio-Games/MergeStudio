@@ -27,6 +27,7 @@ namespace MergeStudio.Gameplay
     public sealed class TripleMatchSnapshot
     {
         public int Level;
+        public bool Paused;
         public int Score;
         public int Combo;
         public int SecondsRemaining;
@@ -106,7 +107,9 @@ namespace MergeStudio.Gameplay
             HintRemaining = 3;
             ShuffleRemaining = 3;
 
-            var available = itemIds.OrderBy(value => value, StringComparer.Ordinal).Take(Level.TypeCount).ToArray();
+            var pool = itemIds.Distinct().OrderBy(value => value, StringComparer.Ordinal).ToList();
+            Shuffle(pool);
+            var available = pool.Take(Level.TypeCount).ToArray();
             var sequence = new List<string>(Level.TripleCount * 3);
             for (int i = 0; i < Level.TripleCount; i++)
             {
@@ -132,6 +135,8 @@ namespace MergeStudio.Gameplay
 
         public TripleMatchLevel Level { get; }
         public TripleMatchState State { get; private set; } = TripleMatchState.Playing;
+        public bool Paused { get; private set; }
+        public void SetPaused(bool paused) => Paused = paused && State == TripleMatchState.Playing;
         public int Score { get; private set; }
         public int Combo { get; private set; }
         public int UndoRemaining { get; private set; }
@@ -141,7 +146,7 @@ namespace MergeStudio.Gameplay
 
         public bool Select(int index)
         {
-            if (State != TripleMatchState.Playing || index < 0 || index >= _tiles.Count || !_tiles[index].Active) return false;
+            if (Paused || State != TripleMatchState.Playing || index < 0 || index >= _tiles.Count || !_tiles[index].Active) return false;
             SaveTurn();
             _hintedIndex = -1;
             var tile = _tiles[index];
@@ -171,7 +176,7 @@ namespace MergeStudio.Gameplay
 
         public bool Undo()
         {
-            if (State != TripleMatchState.Playing || UndoRemaining <= 0 || _history.Count == 0) return false;
+            if (Paused || State != TripleMatchState.Playing || UndoRemaining <= 0 || _history.Count == 0) return false;
             Turn turn = _history.Pop();
             for (int i = 0; i < _tiles.Count; i++) _tiles[i].Active = turn.Active[i];
             _tray.Clear();
@@ -185,7 +190,7 @@ namespace MergeStudio.Gameplay
 
         public bool Hint()
         {
-            if (State != TripleMatchState.Playing || HintRemaining <= 0) return false;
+            if (Paused || State != TripleMatchState.Playing || HintRemaining <= 0) return false;
             string wanted = _tray.GroupBy(value => value).OrderByDescending(group => group.Count()).Select(group => group.Key).FirstOrDefault();
             Tile tile = _tiles.FirstOrDefault(value => value.Active && (wanted == null || value.ItemId == wanted));
             if (tile == null) return false;
@@ -196,7 +201,7 @@ namespace MergeStudio.Gameplay
 
         public bool ShuffleActive()
         {
-            if (State != TripleMatchState.Playing || ShuffleRemaining <= 0) return false;
+            if (Paused || State != TripleMatchState.Playing || ShuffleRemaining <= 0) return false;
             var positions = _tiles.Where(value => value.Active).Select(value => (value.X, value.Y, value.Layer)).ToList();
             Shuffle(positions);
             int position = 0;
@@ -211,7 +216,7 @@ namespace MergeStudio.Gameplay
 
         public bool Tick(float seconds)
         {
-            if (State != TripleMatchState.Playing || Level.Seconds <= 0 || seconds <= 0) return false;
+            if (Paused || State != TripleMatchState.Playing || Level.Seconds <= 0 || seconds <= 0) return false;
             int previous = (int)Math.Ceiling(_remaining);
             _remaining = Math.Max(0, _remaining - seconds);
             if (_remaining <= 0) State = TripleMatchState.Lost;
@@ -223,11 +228,12 @@ namespace MergeStudio.Gameplay
             var snapshot = new TripleMatchSnapshot
             {
                 Level = Level.Number,
+                Paused = Paused,
                 Score = Score,
                 Combo = Combo,
                 SecondsRemaining = Level.Seconds <= 0 ? -1 : (int)Math.Ceiling(_remaining),
                 TotalTiles = _totalTiles,
-                ClearedTiles = _tiles.Count(value => !value.Active),
+                ClearedTiles = _tiles.Count(value => !value.Active) - _tray.Count,
                 UndoRemaining = UndoRemaining,
                 HintRemaining = HintRemaining,
                 ShuffleRemaining = ShuffleRemaining,
@@ -261,7 +267,7 @@ namespace MergeStudio.Gameplay
             });
             while (_history.Count > 12)
             {
-                var turns = _history.Reverse().Skip(1).Reverse().ToArray();
+                var turns = _history.Take(12).Reverse().ToArray();
                 _history.Clear();
                 foreach (Turn turn in turns) _history.Push(turn);
             }

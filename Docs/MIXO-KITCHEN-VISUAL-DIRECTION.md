@@ -54,3 +54,20 @@ bistro with a quiet travertine play surface and no embedded UI, text, logos or f
 
 Generated source sheets are retained in `Assets/Resources/MixoKitchen/UI` so crops can
 be reproduced and audited. Shipped icons are separate sprites in `PremiumFood`.
+
+## Playability update (2026-09-26)
+
+- Seeded level generation samples the entire distinct food catalog before selecting
+  the level palette, instead of repeatedly taking the first alphabetical foods.
+- Completion counts only matched food. Food size stays stable throughout a level;
+  reused tiles refresh their sprites when the level changes.
+- Selection flies to the matching tray group. Boosters cannot race an active flight.
+- Pause freezes the timer and gameplay, with persistent sound/haptic preferences.
+- Undo retains the newest twelve turns in the correct chronological order.
+- Timeout and full-tray failures have separate titles; rewards use safe arithmetic.
+
+Validation: repository audit and Unity EditMode/PlayMode suites. The 100-level
+clearability test checks the rules with grouped selections; it does not prove touch
+accessibility, human difficulty balance or sustained performance on Android.
+This remains a development build, not a store-release readiness sign-off. Physical
+phone testing, visual polish and level-by-level balancing still need evidence.
