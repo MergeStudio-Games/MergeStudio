@@ -1,7 +1,9 @@
 param(
-    [string]$Editor
+    [string]$Editor,
+    [ValidateRange(1, 240)][int]$TimeoutMinutes = 30
 )
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Unity-Process.ps1')
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 if (-not $Editor) {
     $versionFile = Join-Path $project 'ProjectSettings/ProjectVersion.txt'
@@ -13,6 +15,12 @@ if (-not (Test-Path -LiteralPath $Editor)) { throw "Unity Editor not found: $Edi
 $results = Join-Path $project 'TestResults'
 $logs = Join-Path $project 'Logs'
 New-Item -ItemType Directory -Force -Path $results,$logs | Out-Null
+# Invalidate both suites before starting: a failed EditMode run must not leave
+# an old PlayMode success that looks like evidence for this invocation.
+foreach ($mode in @('EditMode', 'PlayMode')) {
+    $oldResult = Join-Path $results "$mode.xml"
+    if (Test-Path -LiteralPath $oldResult) { Remove-Item -LiteralPath $oldResult }
+}
 foreach ($mode in @('EditMode', 'PlayMode')) {
     $result = Join-Path $results "$mode.xml"
     $log = Join-Path $logs "$mode.log"
@@ -20,8 +28,7 @@ foreach ($mode in @('EditMode', 'PlayMode')) {
     if (Test-Path -LiteralPath $result) { Remove-Item -LiteralPath $result }
     # Do not pass -quit: Test Runner exits Unity after the test run finishes.
     $arguments = @('-batchmode', '-nographics', '-projectPath', ('"' + $project + '"'), '-runTests', '-testPlatform', $mode, '-testResults', ('"' + $result + '"'), '-logFile', ('"' + $log + '"'))
-    $process = Start-Process -FilePath $Editor -ArgumentList $arguments -WindowStyle Hidden -PassThru -Wait
-    if ($process.ExitCode -ne 0) { throw "$mode failed with exit code $($process.ExitCode). See $log" }
+    Invoke-UnityProcess -Editor $Editor -Arguments $arguments -Log $log -TimeoutMinutes $TimeoutMinutes
     if (-not (Test-Path -LiteralPath $result)) { throw "$mode did not produce test results. See $log" }
     [xml]$report = Get-Content -LiteralPath $result
     $run = $report.'test-run'

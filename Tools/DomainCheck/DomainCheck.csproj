@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net9.0</TargetFramework></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Analytics/IAnalyticsService.cs" Link="IAnalyticsService.cs" />
+    <Compile Include="../../Assets/Scripts/Analytics/ConsentAnalyticsService.cs" Link="ConsentAnalyticsService.cs" />
+    <Compile Include="../../Assets/Scripts/Economy/Currency.cs" Link="Currency.cs" />
+    <Compile Include="../../Assets/Scripts/Economy/EnergySystem.cs" Link="EnergySystem.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/Item.cs" Link="Item.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/MergeBoard.cs" Link="MergeBoard.cs" />
+    <Compile Include="../../Assets/Scripts/Persistence/SaveData.cs" Link="SaveData.cs" />
+    <Compile Include="../../Assets/Scripts/Persistence/SaveSystem.cs" Link="SaveSystem.cs" />
+  </ItemGroup>
+</Project>

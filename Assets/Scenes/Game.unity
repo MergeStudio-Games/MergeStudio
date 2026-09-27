@@ -79,10 +79,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6bfb3b0e1715ce98c6cb34499229660, type: 3}
   m_Name:
   m_EditorClassIdentifier:
+  _economy: {fileID: 11400000, guid: 659f687774815197b3417b8fb6f587c8, type: 2}
   _menu: 0
   _sceneRequest: {fileID: 11400000, guid: 32291e6e1dd155d4a06ef63f164d8de5, type: 2}
   _boardChanged: {fileID: 11400000, guid: d5af1c229c00564a9afb7f2c79c522b2, type: 2}
   _spawnRequest: {fileID: 11400000, guid: b2ed602019b45be692366b9085eac71d, type: 2}
+  _shopRequest: {fileID: 11400000, guid: d812156331d341ee9dffae865bcb271d, type: 2}
   _orderRequest: {fileID: 11400000, guid: 6f735c7fdc7b56e285456186371ddee1, type: 2}
   _cellRequest: {fileID: 11400000, guid: 9b207f43660f51b9bed77b95e2c05679, type: 2}
   _goldChanged: {fileID: 11400000, guid: 0ee5727b04b658fa81be3878aceb8419, type: 2}
@@ -129,6 +131,7 @@ MonoBehaviour:
   _economy: {fileID: 11400000, guid: 659f687774815197b3417b8fb6f587c8, type: 2}
   _order: {fileID: 11400000, guid: 14dbcf37472f55dbb3821cf721272a89, type: 2}
   _spawnRequest: {fileID: 11400000, guid: b2ed602019b45be692366b9085eac71d, type: 2}
+  _shopRequest: {fileID: 11400000, guid: d812156331d341ee9dffae865bcb271d, type: 2}
   _orderRequest: {fileID: 11400000, guid: 6f735c7fdc7b56e285456186371ddee1, type: 2}
   _cellRequest: {fileID: 11400000, guid: 9b207f43660f51b9bed77b95e2c05679, type: 2}
   _goldGained: {fileID: 11400000, guid: a6a7c90319365836abec29eab62f9ed8, type: 2}

@@ -3,7 +3,7 @@ on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [develop]
+    branches: [main, develop]
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,6 +12,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   tests:
+    name: Android Unity tests
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -40,13 +42,17 @@ jobs:
           unityVersion: auto
           testMode: all
           artifactsPath: TestResults
+      - name: Verify both Unity suites
+        run: python3 Tools/verify_unity_results.py TestResults
       - uses: actions/upload-artifact@v7
         if: always()
         with:
+          retention-days: 14
           name: tests-${{ github.job }}
           path: TestResults
           if-no-files-found: warn
   build:
+    timeout-minutes: 90
     needs: tests
     runs-on: ubuntu-latest
     env:
@@ -77,30 +83,28 @@ jobs:
           targetPlatform: Android
           buildName: MergeStudio
           allowDirtyBuild: true
-          # buildAppBundle=true is also set by ProjectSetup. v4 uses androidExportType.
+          # Explicit AAB output; the pinned builder accepts androidExportType.
           androidExportType: androidAppBundle
       - name: Verify Android App Bundle
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          from zipfile import ZipFile
+          import sys
+          sys.path.insert(0, 'Tools')
+          from release_manifest import manifest
           bundles = list(Path('build').rglob('*.aab'))
           if not bundles:
               raise SystemExit('Build did not produce an Android App Bundle')
           for bundle in bundles:
-              with ZipFile(bundle) as archive:
-                  names = set(archive.namelist())
-                  required = {'BundleConfig.pb', 'base/manifest/AndroidManifest.xml'}
-                  if not required <= names:
-                      raise SystemExit(f'Invalid Android App Bundle: {bundle}')
-                  corrupt = archive.testzip()
-                  if corrupt:
-                      raise SystemExit(f'Corrupt entry in {bundle}: {corrupt}')
-              print(f'Verified {bundle} ({bundle.stat().st_size} bytes)')
+              manifest(bundle, Path(str(bundle) + '.json'))
+              print(f'Verified {bundle}')
           PY
       - uses: actions/upload-artifact@v7
         with:
           name: Android-build
-          path: build/**/*.aab
+          retention-days: 30
+          path: |
+            build/**/*.aab
+            build/**/*.aab.json
           if-no-files-found: error

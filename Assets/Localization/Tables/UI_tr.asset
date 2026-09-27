@@ -50,6 +50,30 @@ MonoBehaviour:
     m_Localized: "E\u015Fya \xDCret"
     m_Metadata:
       m_Items: []
+  - m_Id: 2393193149861888
+    m_Localized: "Alt\u0131n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634048
+    m_Localized: "E\u015Fya \xFCret. Ayn\u0131 seviyeye dokun veya s\xFCr\xFCkleyerek birle\u015Ftir. Sipari\u015Fini tamamla!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634049
+    m_Localized: "\u0130lk sipari\u015F tamamland\u0131! \u0130lerlemen kaydedildi."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634050
+    m_Localized: '+{0} enerji / {1} elmas (bakiye: {2})'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634051
+    m_Localized: "Ses: kapal\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634052
+    m_Localized: "Ses: a\xE7\u0131k"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

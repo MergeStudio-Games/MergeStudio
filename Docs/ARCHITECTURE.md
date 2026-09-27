@@ -16,7 +16,7 @@ MonoBehaviour sistemleri birbirine sahne hard-reference tutmaz. `Void/Int/Bool/S
 ServiceLocator yalnızca composition root için altyapıdır; gameplay mesajlaşmasının yerine geçmez. Saf C# modellerine constructor/metot parametreleriyle bağımlılık verilebilir. UI kendi çocuk widget referanslarını tutabilir; sahneler arası sistem referansı tutmaz.
 
 ## Oyun ve ekonomi
-7×9 tahta, aynı ID/seviyede merge, seviye üst sınırı 10. Bir hücre seçip ikinci hücreyi seçmek merge dener; sürükle-bırak bu iskeletin kapsamı değildir. İlk sipariş tier-2 bread ister; tekrarlanan ödül engellenir. Economy.asset enerji kapasitesi, yenileme saniyesi, üretim fiyatı, bonus drop oranı ve mağaza paketini yönetir. FirstOrder.asset ödülü yönetir. ShopSystem elmas karşılığı enerji satın alma modelidir; mağaza ekranı henüz bağlanmamıştır.
+Varsayılan 7×9 tahta, aynı ID/seviyede merge, seviye üst sınırı 10. İki hücreye dokunma veya sürükle-bırak, boş hedefe taşıma ya da eşleşen öğeleri birleştirme isteği gönderir. UI yalnız event channel kullanır; `CellRequest=-1` bekleyen seçimi iptal eder. İlk sipariş tier-2 bread ister; tekrarlanan ödül engellenir. Economy.asset enerji kapasitesi, yenileme saniyesi, üretim fiyatı, bonus drop oranı ve mağaza paketini yönetir. FirstOrder.asset ödülü yönetir. ShopRequest kanalı elmas karşılığı enerji satın almayı bağlar; gerçek para satın alımı değildir. Yeni dokunma, mağaza ve responsive UI davranışlarının cihaz doğrulaması bekliyor.
 
 Enerji UTC timestamp ile yenilenir, kapasitede biriken süre atılır. Saat geriye giderse referans zamanı sıfırlanır. Yerel saat ve yerel kayıt hileye dayanıklı sunucu otoritesi sağlamaz.
 

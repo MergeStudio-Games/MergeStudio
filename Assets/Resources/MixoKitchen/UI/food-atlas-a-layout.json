@@ -1,0 +1,258 @@
+{
+  "TextureWidth": 1254,
+  "TextureHeight": 1254,
+  "Entries": [
+    {
+      "Name": "burger",
+      "X": 29,
+      "Y": 1039,
+      "Width": 168,
+      "Height": 168
+    },
+    {
+      "Name": "fries",
+      "X": 247,
+      "Y": 1042,
+      "Width": 157,
+      "Height": 170
+    },
+    {
+      "Name": "pizza",
+      "X": 445,
+      "Y": 1041,
+      "Width": 180,
+      "Height": 168
+    },
+    {
+      "Name": "croissant",
+      "X": 653,
+      "Y": 1043,
+      "Width": 185,
+      "Height": 149
+    },
+    {
+      "Name": "cupcake",
+      "X": 871,
+      "Y": 1040,
+      "Width": 145,
+      "Height": 175
+    },
+    {
+      "Name": "donut",
+      "X": 1060,
+      "Y": 1051,
+      "Width": 171,
+      "Height": 141
+    },
+    {
+      "Name": "apple",
+      "X": 32,
+      "Y": 830,
+      "Width": 159,
+      "Height": 184
+    },
+    {
+      "Name": "avocado",
+      "X": 253,
+      "Y": 826,
+      "Width": 156,
+      "Height": 176
+    },
+    {
+      "Name": "strawberry",
+      "X": 465,
+      "Y": 830,
+      "Width": 148,
+      "Height": 170
+    },
+    {
+      "Name": "lemon",
+      "X": 656,
+      "Y": 835,
+      "Width": 167,
+      "Height": 164
+    },
+    {
+      "Name": "tomato",
+      "X": 860,
+      "Y": 833,
+      "Width": 167,
+      "Height": 165
+    },
+    {
+      "Name": "carrot",
+      "X": 1075,
+      "Y": 825,
+      "Width": 157,
+      "Height": 190
+    },
+    {
+      "Name": "sushi-roll",
+      "X": 43,
+      "Y": 634,
+      "Width": 142,
+      "Height": 155
+    },
+    {
+      "Name": "salmon-nigiri",
+      "X": 223,
+      "Y": 648,
+      "Width": 192,
+      "Height": 132
+    },
+    {
+      "Name": "taco",
+      "X": 434,
+      "Y": 630,
+      "Width": 192,
+      "Height": 170
+    },
+    {
+      "Name": "pancakes",
+      "X": 651,
+      "Y": 636,
+      "Width": 178,
+      "Height": 158
+    },
+    {
+      "Name": "waffle",
+      "X": 848,
+      "Y": 639,
+      "Width": 200,
+      "Height": 153
+    },
+    {
+      "Name": "ice-cream",
+      "X": 1089,
+      "Y": 609,
+      "Width": 125,
+      "Height": 215
+    },
+    {
+      "Name": "chocolate",
+      "X": 20,
+      "Y": 435,
+      "Width": 187,
+      "Height": 161
+    },
+    {
+      "Name": "cookie",
+      "X": 233,
+      "Y": 436,
+      "Width": 177,
+      "Height": 170
+    },
+    {
+      "Name": "fried-egg",
+      "X": 440,
+      "Y": 443,
+      "Width": 184,
+      "Height": 148
+    },
+    {
+      "Name": "cheese",
+      "X": 653,
+      "Y": 438,
+      "Width": 172,
+      "Height": 163
+    },
+    {
+      "Name": "broccoli",
+      "X": 856,
+      "Y": 432,
+      "Width": 180,
+      "Height": 180
+    },
+    {
+      "Name": "mushroom",
+      "X": 1069,
+      "Y": 430,
+      "Width": 162,
+      "Height": 166
+    },
+    {
+      "Name": "roast-chicken",
+      "X": 22,
+      "Y": 244,
+      "Width": 184,
+      "Height": 165
+    },
+    {
+      "Name": "steak",
+      "X": 230,
+      "Y": 241,
+      "Width": 187,
+      "Height": 160
+    },
+    {
+      "Name": "hot-dog",
+      "X": 438,
+      "Y": 247,
+      "Width": 186,
+      "Height": 155
+    },
+    {
+      "Name": "popcorn",
+      "X": 658,
+      "Y": 231,
+      "Width": 157,
+      "Height": 188
+    },
+    {
+      "Name": "coffee",
+      "X": 867,
+      "Y": 249,
+      "Width": 183,
+      "Height": 157
+    },
+    {
+      "Name": "smoothie",
+      "X": 1095,
+      "Y": 241,
+      "Width": 127,
+      "Height": 189
+    },
+    {
+      "Name": "ramen",
+      "X": 16,
+      "Y": 36,
+      "Width": 193,
+      "Height": 186
+    },
+    {
+      "Name": "salad",
+      "X": 227,
+      "Y": 40,
+      "Width": 192,
+      "Height": 165
+    },
+    {
+      "Name": "birthday-cake",
+      "X": 456,
+      "Y": 45,
+      "Width": 146,
+      "Height": 189
+    },
+    {
+      "Name": "watermelon",
+      "X": 650,
+      "Y": 40,
+      "Width": 188,
+      "Height": 172
+    },
+    {
+      "Name": "grapes",
+      "X": 870,
+      "Y": 37,
+      "Width": 169,
+      "Height": 188
+    },
+    {
+      "Name": "pineapple",
+      "X": 1091,
+      "Y": 28,
+      "Width": 123,
+      "Height": 208
+    }
+  ]
+}

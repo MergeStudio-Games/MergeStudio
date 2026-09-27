@@ -1,5 +1,9 @@
 # Delivery status / Teslim durumu
 
+> Historical snapshot. For current implementation and blockers, see
+> [WORKSPACE-ROADMAP.md](WORKSPACE-ROADMAP.md). The 2026-09-22 Editor invocation
+> fails on licensing; the successful test counts below are from 2026-09-18.
+
 **Snapshot / Anlık kayıt:** 2026-09-18 · `develop` · Unity `6000.6.0f1`
 
 ## Current status / Güncel durum

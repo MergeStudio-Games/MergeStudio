@@ -12,6 +12,11 @@ namespace MergeStudio.Gameplay {
             if (a == null || b == null || a.Id != b.Id || a.Tier != b.Tier || b.Tier >= 10) return false;
             _cells[to] = new Item(b.Id, b.Tier + 1); _cells[from] = null; return true;
         }
+        public bool MoveOrMerge(int from, int to) {
+            if (from == to || from < 0 || to < 0 || from >= Count || to >= Count || _cells[from] == null) return false;
+            if (_cells[to] != null) return Merge(from, to);
+            _cells[to] = _cells[from]; _cells[from] = null; return true;
+        }
         public bool Consume(string id, int tier) { for (int i = 0; i < Count; i++) if (_cells[i]?.Id == id && _cells[i].Tier == tier) { _cells[i] = null; return true; } return false; }
     }
 }

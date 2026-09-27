@@ -47,6 +47,30 @@ MonoBehaviour:
     m_Key: spawn
     m_Metadata:
       m_Items: []
+  - m_Id: 2393193149861888
+    m_Key: gold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634048
+    m_Key: merge_instruction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634049
+    m_Key: first_order_complete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634050
+    m_Key: energy_offer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634051
+    m_Key: sound_off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2393193317634052
+    m_Key: sound_on
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

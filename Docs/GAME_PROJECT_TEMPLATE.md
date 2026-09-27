@@ -2,6 +2,24 @@
 
 ## English
 
+### Local-first generator
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Tools/New-GameProject.ps1 -Repository GardenMerge -ApplicationId com.mergestudio.gardenmerge -Directory D:\Games\GardenMerge -LocalOnly
+```
+
+The generator exports the selected committed revision (`develop` by default),
+sets company/product/application identifiers, and initializes an independent Git
+history. Existing destination folders are rejected. `-LocalOnly` creates no
+remote repository. Omit it to commit and publish a new repository with GitHub CLI;
+there are no force pushes. Configure Git identity before publishing. Use `-Revision`
+only when deliberately testing another reviewed commit. Uncommitted template changes
+are never copied. `Docs/GAME-IDENTITY.json` records the originating template commit.
+
+Unity repair/build preserves the product identity in ProjectSettings. Game-specific
+README, repository links, CODEOWNERS, privacy and signing configuration still require
+review; the generator does not claim to personalize those documents automatically.
+
 ### Recommended creation flow
 
 1. Open the [MergeStudio Games repositories](https://github.com/orgs/MergeStudio-Games/repositories), select **MergeStudio**, then choose **Use this template → Create a new repository**.

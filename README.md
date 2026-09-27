@@ -14,6 +14,9 @@
 
 > **Status / Durum:** The repository is an extensible development foundation. Device validation, Unity Test Runner results, CI licensing, Android signing, and store release checks are still required before production release.
 
+Current ordered work and validation commands / Güncel çalışma sırası ve kontrol komutları:
+[Workspace roadmap](Docs/WORKSPACE-ROADMAP.md).
+
 ## Türkçe
 
 ### Proje
