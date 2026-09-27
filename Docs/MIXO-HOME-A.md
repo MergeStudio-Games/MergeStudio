@@ -9,7 +9,7 @@ Kullanıcı üç tasarım arasından ilkini (A) seçti. Bu değişiklik açılı
 - Yardım ekranı mevcut üçlü eşleştirme ve yedi yuvalı hazne kurallarını açıklar.
 - Gerçek kayıtlı bölümü bilmeyen menüde sahte “Bölüm 1” yerine “Üçünü eşleştir” rozeti kullanılır.
 - Oyun açılışı mevcut SceneRequest event channel üzerinden yapılır; kayıt silinmez.
-- Arka plan en-boy oranını koruyarak ekranı doldurur; kontroller SafeArea içinde kalır.
+- Arka plan en-boy oranını korur; geniş ekranlarda turkuaz çevre alanıyla tamamlanır. Kontroller SafeArea içinde kalır.
 
 ## Varlık ve üretim kaydı
 

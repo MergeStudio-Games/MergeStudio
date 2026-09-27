@@ -13,7 +13,6 @@ namespace MergeStudio.UI
 
         private void BuildMenu()
         {
-            _menuPill = CreateMenuPill();
             RectTransform badge = Panel("Menu Welcome Badge", _safeRoot, Cream, _menuPill);
             SetRect(badge, 0.29f, 0.254f, 0.71f, 0.287f);
             AddShadow(badge.gameObject, new Color(0.04f, 0.18f, 0.17f, 0.28f), new Vector2(0, -5));

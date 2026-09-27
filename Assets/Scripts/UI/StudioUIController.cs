@@ -71,8 +71,9 @@ namespace MergeStudio.UI
             _hapticsEnabled = PlayerPrefs.GetInt("mixo.haptics", 1) != 0;
             _rounded = CreateRoundedSprite();
             _circle = CreateCircleSprite();
-            _background = Resources.Load<Sprite>(_menu ? "MixoKitchen/UI/home-kitchen-a" : "MixoKitchen/UI/kitchen-background-v2");
-            foreach (Sprite sprite in Resources.LoadAll<Sprite>("MixoKitchen/PremiumFood")) _sprites[sprite.name] = sprite;
+            _background = _menu ? Resources.Load<Sprite>("MixoKitchen/UI/home-kitchen-a") : null;
+            foreach (Sprite sprite in FoodCatalog.Load()) _sprites[sprite.name] = sprite;
+            _menuPill = CreateMenuPill();
             BuildCanvas();
             if (_menu) BuildMenu();
             else BuildGame();
@@ -129,7 +130,10 @@ namespace MergeStudio.UI
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 0.5f;
 
-            Image background = CreateImage("Premium Kitchen Background", canvasObject.transform, Color.white);
+            Image ambient = CreateImage("Kitchen Ambient", canvasObject.transform, new Color32(47, 133, 133, 255));
+            Stretch(ambient.rectTransform);
+            ambient.raycastTarget = false;
+            Image background = CreateImage("Kitchen Background", canvasObject.transform, _menu ? Color.white : new Color32(47, 133, 133, 255));
             Stretch(background.rectTransform);
             background.sprite = _background;
             background.preserveAspect = false;
@@ -137,19 +141,20 @@ namespace MergeStudio.UI
             if (_menu && _background != null)
             {
                 var fit = background.gameObject.AddComponent<AspectRatioFitter>();
-                fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
                 fit.aspectRatio = _background.rect.width / _background.rect.height;
             }
 
             Image topShade = CreateImage("Top Shade", canvasObject.transform, new Color(0.02f, 0.09f, 0.10f, 0.28f));
             SetRect(topShade.rectTransform, 0, 0.77f, 1, 1);
             topShade.raycastTarget = false;
-            topShade.gameObject.SetActive(!_menu);
+            topShade.gameObject.SetActive(false);
 
             var safe = new GameObject("Safe Area", typeof(RectTransform), typeof(SafeArea));
             safe.transform.SetParent(canvasObject.transform, false);
             _safeRoot = safe.GetComponent<RectTransform>();
             Stretch(_safeRoot);
+            safe.GetComponent<SafeArea>().Refresh();
         }
 
         private void BuildGame()
@@ -162,18 +167,18 @@ namespace MergeStudio.UI
             _matchSound = Tone("Match", 980, 0.22f, 0.14f);
 
             RectTransform header = Panel("Header", _safeRoot, new Color(0.035f, 0.15f, 0.16f, 0.96f), _rounded);
-            SetRect(header, 0.045f, 0.89f, 0.955f, 0.975f);
+            SetRect(header, 0.045f, 0.905f, 0.955f, 0.975f);
             AddShadow(header.gameObject, new Color(0.01f, 0.03f, 0.03f, 0.55f), new Vector2(0, -9));
             _levelText = Label("BÖLÜM 1", header, 31, FontStyle.Bold, Stone);
             SetRect(_levelText.rectTransform, 0.04f, 0.48f, 0.42f, 0.92f);
             _levelText.alignment = TextAnchor.MiddleLeft;
             _scoreText = Label("0", header, 30, FontStyle.Bold, Gold);
-            SetRect(_scoreText.rectTransform, 0.70f, 0.48f, 0.94f, 0.92f);
+            SetRect(_scoreText.rectTransform, 0.64f, 0.48f, 0.79f, 0.92f);
             _scoreText.alignment = TextAnchor.MiddleRight;
             _timerText = Label("∞", header, 27, FontStyle.Bold, Color.white);
-            SetRect(_timerText.rectTransform, 0.43f, 0.48f, 0.69f, 0.92f);
+            SetRect(_timerText.rectTransform, 0.40f, 0.48f, 0.63f, 0.92f);
             RectTransform progress = Panel("Progress", header, new Color(1, 1, 1, 0.14f), _rounded);
-            SetRect(progress, 0.04f, 0.12f, 0.96f, 0.30f);
+            SetRect(progress, 0.04f, 0.12f, 0.79f, 0.30f);
             _progressFill = CreateImage("Fill", progress, Gold);
             RectTransform fill = _progressFill.rectTransform;
             fill.anchorMin = Vector2.zero;
@@ -181,8 +186,11 @@ namespace MergeStudio.UI
             fill.pivot = new Vector2(0, 0.5f);
             fill.offsetMin = fill.offsetMax = Vector2.zero;
 
-            _boardArea = Panel("Food Pile", _safeRoot, new Color(1f, 0.96f, 0.88f, 0.08f), _rounded);
-            SetRect(_boardArea, 0.045f, 0.315f, 0.955f, 0.845f);
+            RectTransform boardRim = Panel("Serving Board Rim", _safeRoot, new Color32(236, 200, 149, 255), _rounded);
+            SetRect(boardRim, 0.045f, 0.265f, 0.955f, 0.875f);
+            AddShadow(boardRim.gameObject, new Color(0.02f, 0.15f, 0.15f, 0.40f), new Vector2(0, -12));
+            _boardArea = Panel("Food Pile", boardRim, new Color32(255, 245, 219, 255), _rounded);
+            Stretch(_boardArea, 10);
             _tileLayer = new GameObject("Tiles", typeof(RectTransform)).GetComponent<RectTransform>();
             _tileLayer.SetParent(_boardArea, false);
             Stretch(_tileLayer, 25);
@@ -190,13 +198,13 @@ namespace MergeStudio.UI
             _effectsLayer.SetParent(_safeRoot, false);
             Stretch(_effectsLayer);
 
-            RectTransform instructionPill = Panel("Instruction", _boardArea, new Color(0.035f, 0.15f, 0.16f, 0.90f), _rounded);
-            SetRect(instructionPill, 0.19f, 0.015f, 0.81f, 0.085f);
-            _statusText = Label("Aynı üç lezzeti eşleştir", instructionPill, 23, FontStyle.Bold, Stone);
+            RectTransform instructionPill = Panel("Instruction", _boardArea, new Color(0.05f, 0.25f, 0.26f, 0.08f), _rounded);
+            SetRect(instructionPill, 0.14f, 0.012f, 0.86f, 0.052f);
+            _statusText = Label("Aynı üç lezzeti eşleştir", instructionPill, 25, FontStyle.Bold, DeepTeal);
             Stretch(_statusText.rectTransform, 4);
 
             RectTransform tray = Panel("Tray", _safeRoot, new Color(0.025f, 0.12f, 0.13f, 0.98f), _rounded);
-            SetRect(tray, 0.045f, 0.17f, 0.955f, 0.295f);
+            SetRect(tray, 0.045f, 0.155f, 0.955f, 0.233f);
             AddShadow(tray.gameObject, new Color(0.01f, 0.03f, 0.03f, 0.60f), new Vector2(0, -11));
             var trayLayout = tray.gameObject.AddComponent<HorizontalLayoutGroup>();
             trayLayout.padding = new RectOffset(16, 16, 16, 16);
@@ -218,19 +226,19 @@ namespace MergeStudio.UI
 
             RectTransform tools = new GameObject("Boosters", typeof(RectTransform), typeof(HorizontalLayoutGroup)).GetComponent<RectTransform>();
             tools.SetParent(_safeRoot, false);
-            SetRect(tools, 0.045f, 0.045f, 0.955f, 0.145f);
+            SetRect(tools, 0.12f, 0.052f, 0.88f, 0.120f);
             var toolsLayout = tools.GetComponent<HorizontalLayoutGroup>();
             toolsLayout.spacing = 14;
             toolsLayout.childAlignment = TextAnchor.MiddleCenter;
             toolsLayout.childControlWidth = toolsLayout.childControlHeight = true;
             toolsLayout.childForceExpandWidth = toolsLayout.childForceExpandHeight = true;
-            AddToolButton("↶", "GERİ", new Color32(169, 80, 67, 255), tools, () => _orderRequest.RaiseEvent(), out _undoCount);
-            AddToolButton("✦", "İPUCU", new Color32(186, 132, 54, 255), tools, () => _shopRequest.RaiseEvent(), out _hintCount);
-            AddToolButton("↻", "KARIŞTIR", new Color32(35, 116, 121, 255), tools, () => _spawnRequest.RaiseEvent(), out _shuffleCount);
+            AddToolButton("", "GERİ", new Color32(255, 111, 77, 255), tools, () => _orderRequest.RaiseEvent(), out _undoCount);
+            AddToolButton("", "İPUCU", new Color32(240, 168, 57, 255), tools, () => _shopRequest.RaiseEvent(), out _hintCount);
+            AddToolButton("", "KARIŞTIR", new Color32(32, 168, 156, 255), tools, () => _spawnRequest.RaiseEvent(), out _shuffleCount);
 
-            Button pause = Button("II", _safeRoot, DeepTeal, () => SetPause(true), out Text pauseLabel);
+            Button pause = Button("II", header, new Color32(38, 120, 122, 255), () => SetPause(true), out Text pauseLabel);
             pause.gameObject.name = "Pause Button";
-            SetRect(pause.GetComponent<RectTransform>(), 0.82f, 0.85f, 0.95f, 0.888f);
+            SetRect(pause.GetComponent<RectTransform>(), 0.84f, 0.14f, 0.975f, 0.86f);
             BuildResultOverlay();
             BuildPauseOverlay();
         }
@@ -268,7 +276,7 @@ namespace MergeStudio.UI
                 hapticLabel.text = _hapticsEnabled ? "T\u0130TRE\u015e\u0130M: A\u00c7IK" : "T\u0130TRE\u015e\u0130M: KAPALI";
             }, out hapticLabel);
             SetRect(haptics.GetComponent<RectTransform>(), 0.08f, 0.41f, 0.92f, 0.55f);
-            Button resume = Button("DEVAM ET", card, Mint, () => SetPause(false), out Text resumeLabel);
+            Button resume = MenuPillButton("Resume Button", "DEVAM ET", card, Coral, () => SetPause(false));
             SetRect(resume.GetComponent<RectTransform>(), 0.08f, 0.22f, 0.92f, 0.36f);
             Text note = Label("Mola s\u0131ras\u0131nda s\u00fcre durur.", card, 25, FontStyle.Normal, DeepTeal);
             SetRect(note.rectTransform, 0.08f, 0.05f, 0.92f, 0.17f);
@@ -277,13 +285,16 @@ namespace MergeStudio.UI
 
         private void AddToolButton(string icon, string title, Color color, Transform parent, UnityEngine.Events.UnityAction action, out Text count)
         {
-            Button button = Button(icon + "  " + title, parent, color, action, out Text label);
+            Button button = MenuPillButton("Booster " + title, title, parent, color, action);
+            Text label = button.GetComponentInChildren<Text>();
             button.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
-            label.fontSize = 24;
+            label.fontSize = label.resizeTextMaxSize = 25;
+            SetRect(label.rectTransform, 0.08f, 0.22f, 0.92f, 0.92f);
             count = Label("3", button.transform, 21, FontStyle.Bold, Color.white);
             count.alignment = TextAnchor.LowerRight;
-            SetRect(count.rectTransform, 0.72f, 0.04f, 0.94f, 0.40f);
-            AddShadow(button.gameObject, new Color(0.01f, 0.03f, 0.03f, 0.45f), new Vector2(0, -7));
+            SetRect(count.rectTransform, 0.39f, 0.07f, 0.61f, 0.35f);
+            count.alignment = TextAnchor.MiddleCenter;
+            count.raycastTarget = false;
         }
 
         private void BuildResultOverlay()
@@ -299,7 +310,8 @@ namespace MergeStudio.UI
             SetRect(_resultTitle.rectTransform, 0.08f, 0.65f, 0.92f, 0.88f);
             _resultSubtitle = Label("Bütün yemekleri eşleştirdin", card, 30, FontStyle.Bold, Navy);
             SetRect(_resultSubtitle.rectTransform, 0.08f, 0.43f, 0.92f, 0.66f);
-            Button action = Button("DEVAM ET", card, Mint, ResultAction, out _resultButtonText);
+            Button action = MenuPillButton("Result Continue", "DEVAM ET", card, Coral, ResultAction);
+            _resultButtonText = action.GetComponentInChildren<Text>();
             SetRect(action.GetComponent<RectTransform>(), 0.12f, 0.12f, 0.88f, 0.34f);
             _resultOverlay.SetActive(false);
         }
@@ -362,21 +374,22 @@ namespace MergeStudio.UI
             }
 
             int activeCount = _snapshot.TotalTiles;
-            float size = Mathf.Lerp(148, 92, Mathf.InverseLerp(24, 180, activeCount));
+            float size = Mathf.Lerp(140, 108, Mathf.InverseLerp(24, 180, activeCount));
             foreach (TripleTileSnapshot tile in _snapshot.Tiles.Where(value => value.Active).OrderBy(value => value.Layer).ThenBy(value => value.Index))
             {
                 if (!_tileButtons.TryGetValue(tile.Index, out Button button))
                 {
                     int index = tile.Index;
-                    button = Button(string.Empty, _tileLayer, new Color(1f, 0.94f, 0.80f, 0.94f), () => TapTile(index), out Text label);
+                    button = Button(string.Empty, _tileLayer, Color.clear, () => TapTile(index), out Text label);
                     button.GetComponent<Image>().sprite = _circle;
                     button.GetComponent<Image>().type = Image.Type.Simple;
                     label.gameObject.SetActive(false);
-                    AddShadow(button.gameObject, new Color(0.02f, 0.09f, 0.09f, 0.38f), new Vector2(0, -7));
                     Image food = CreateImage("Food", button.transform, Color.white);
-                    Stretch(food.rectTransform, 3);
+                    Stretch(food.rectTransform, 6);
                     food.preserveAspect = true;
                     food.raycastTarget = false;
+                    AddShadow(food.gameObject, new Color(0.22f, 0.15f, 0.06f, 0.28f), new Vector2(1, -5));
+                    button.targetGraphic = food;
                     if (_sprites.TryGetValue(tile.ItemId, out Sprite sprite)) food.sprite = sprite;
                     _tileButtons[index] = button;
                 }
@@ -388,7 +401,7 @@ namespace MergeStudio.UI
                 rect.sizeDelta = new Vector2(size, size);
                 rect.anchoredPosition = Vector2.zero;
                 rect.localRotation = Quaternion.Euler(0, 0, ((tile.Index * 37) % 13) - 6);
-                button.GetComponent<Image>().color = tile.Highlighted ? new Color32(255, 211, 98, 255) : new Color(1f, 0.94f, 0.80f, 0.94f);
+                button.GetComponent<Image>().color = tile.Highlighted ? new Color(1f, 0.73f, 0.18f, 0.5f) : Color.clear;
                 rect.SetAsLastSibling();
             }
         }

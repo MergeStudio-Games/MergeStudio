@@ -10,6 +10,20 @@ namespace MergeStudio.Editor
 
         private void OnPreprocessTexture()
         {
+            if (assetPath == UiPath + "food-atlas-a.png")
+            {
+                var atlas = (TextureImporter)assetImporter;
+                atlas.textureType = TextureImporterType.Default;
+                atlas.spriteImportMode = SpriteImportMode.None;
+                atlas.npotScale = TextureImporterNPOTScale.None;
+                atlas.alphaIsTransparency = true;
+                atlas.mipmapEnabled = false;
+                atlas.textureCompression = TextureImporterCompression.Uncompressed;
+                atlas.maxTextureSize = 2048;
+                atlas.wrapMode = UnityEngine.TextureWrapMode.Clamp;
+                atlas.filterMode = UnityEngine.FilterMode.Bilinear;
+                return;
+            }
             bool food = assetPath.StartsWith(FoodPath, System.StringComparison.Ordinal) ||
                         assetPath.StartsWith(PremiumFoodPath, System.StringComparison.Ordinal);
             bool ui = assetPath.StartsWith(UiPath, System.StringComparison.Ordinal);
