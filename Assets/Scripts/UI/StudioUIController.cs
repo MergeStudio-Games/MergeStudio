@@ -12,7 +12,7 @@ using MergeStudio.Gameplay;
 
 namespace MergeStudio.UI
 {
-    public sealed class StudioUIController : MonoBehaviour
+    public sealed partial class StudioUIController : MonoBehaviour
     {
         private static readonly Color Navy = new Color32(25, 35, 59, 255);
         private static readonly Color Cream = new Color32(255, 248, 228, 255);
@@ -71,7 +71,7 @@ namespace MergeStudio.UI
             _hapticsEnabled = PlayerPrefs.GetInt("mixo.haptics", 1) != 0;
             _rounded = CreateRoundedSprite();
             _circle = CreateCircleSprite();
-            _background = Resources.Load<Sprite>("MixoKitchen/UI/kitchen-background-v2");
+            _background = Resources.Load<Sprite>(_menu ? "MixoKitchen/UI/home-kitchen-a" : "MixoKitchen/UI/kitchen-background-v2");
             foreach (Sprite sprite in Resources.LoadAll<Sprite>("MixoKitchen/PremiumFood")) _sprites[sprite.name] = sprite;
             BuildCanvas();
             if (_menu) BuildMenu();
@@ -96,6 +96,8 @@ namespace MergeStudio.UI
 
         private void Update()
         {
+            if (_menu && _menuDialog != null && _menuDialog.activeSelf && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+                _menuDialog.SetActive(false);
             if (!_menu && !_inputLocked && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
                 SetPause(_pauseOverlay == null || !_pauseOverlay.activeSelf);
             _time += Time.unscaledDeltaTime;
@@ -131,50 +133,23 @@ namespace MergeStudio.UI
             Stretch(background.rectTransform);
             background.sprite = _background;
             background.preserveAspect = false;
+            background.raycastTarget = false;
+            if (_menu && _background != null)
+            {
+                var fit = background.gameObject.AddComponent<AspectRatioFitter>();
+                fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fit.aspectRatio = _background.rect.width / _background.rect.height;
+            }
 
             Image topShade = CreateImage("Top Shade", canvasObject.transform, new Color(0.02f, 0.09f, 0.10f, 0.28f));
             SetRect(topShade.rectTransform, 0, 0.77f, 1, 1);
             topShade.raycastTarget = false;
+            topShade.gameObject.SetActive(!_menu);
 
             var safe = new GameObject("Safe Area", typeof(RectTransform), typeof(SafeArea));
             safe.transform.SetParent(canvasObject.transform, false);
             _safeRoot = safe.GetComponent<RectTransform>();
             Stretch(_safeRoot);
-        }
-
-        private void BuildMenu()
-        {
-            Text brand = Label("MIXO", _safeRoot, 126, FontStyle.Bold, Color.white);
-            SetRect(brand.rectTransform, 0.08f, 0.78f, 0.92f, 0.92f);
-            AddShadow(brand.gameObject, new Color(0, 0, 0, 0.45f), new Vector2(0, -8));
-            Text kitchen = Label("K I T C H E N", _safeRoot, 39, FontStyle.Bold, Gold);
-            SetRect(kitchen.rectTransform, 0.08f, 0.735f, 0.92f, 0.81f);
-            Text tagline = Label("EŞLEŞTİR  •  SERVİS ET  •  USTALAŞ", _safeRoot, 24, FontStyle.Bold, Stone);
-            SetRect(tagline.rectTransform, 0.08f, 0.69f, 0.92f, 0.75f);
-
-            string[] heroes = { "burger", "pizza", "birthday-cake", "avocado", "fries" };
-            for (int i = 0; i < heroes.Length; i++)
-            {
-                var card = Panel("Hero Food", _safeRoot, new Color(1, 0.96f, 0.86f, 0.96f), _circle);
-                float x = 0.16f + i * 0.17f;
-                SetRect(card, x - 0.075f, 0.43f + (i % 2) * 0.045f, x + 0.075f, 0.58f + (i % 2) * 0.045f);
-                card.localRotation = Quaternion.Euler(0, 0, -10 + i * 5);
-                AddShadow(card.gameObject, new Color(0.02f, 0.08f, 0.08f, 0.42f), new Vector2(0, -12));
-                Image icon = CreateImage("Food", card, Color.white);
-                Stretch(icon.rectTransform, 18);
-                icon.preserveAspect = true;
-                if (_sprites.TryGetValue(heroes[i], out Sprite sprite)) icon.sprite = sprite;
-                _floaters.Add(card);
-            }
-
-            Button play = Button("OYNA", _safeRoot, DeepTeal, () => _sceneRequest.RaiseEvent("Game"), out Text playText);
-            SetRect(play.GetComponent<RectTransform>(), 0.15f, 0.19f, 0.85f, 0.29f);
-            playText.fontSize = 52;
-            playText.color = new Color32(255, 231, 177, 255);
-            AddShadow(play.gameObject, new Color(0.01f, 0.04f, 0.04f, 0.48f), new Vector2(0, -12));
-
-            Text note = Label("100 özgün mutfak bölümü seni bekliyor", _safeRoot, 27, FontStyle.Bold, DeepTeal);
-            SetRect(note.rectTransform, 0.1f, 0.12f, 0.9f, 0.18f);
         }
 
         private void BuildGame()
@@ -676,6 +651,12 @@ namespace MergeStudio.UI
 
         private void OnDestroy()
         {
+            if (_menuPill != null)
+            {
+                Texture2D texture = _menuPill.texture;
+                Destroy(_menuPill);
+                if (texture != null) Destroy(texture);
+            }
             if (_tapSound != null) Destroy(_tapSound);
             if (_matchSound != null) Destroy(_matchSound);
             if (_rounded != null)
